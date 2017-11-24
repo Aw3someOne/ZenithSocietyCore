@@ -11,86 +11,61 @@ namespace ZenithWebSite.Data
 {
     public class DummyData
     {
+        static string Admin { get => "admin"; }
+        static string Member { get => "member"; }
+        static string Password { get => "P@$$w0rd"; }
+
         public static async void Initialize(ApplicationDbContext db)
         {
-            var user = new ApplicationUser
+            if (!db.Users.Any())
             {
-                FirstName = "Arnold",
-                LastName = "A Last Name",
-                Email = "a@a.a",
-                NormalizedEmail = "A@A.A",
-                UserName = "a",
-                NormalizedUserName = "A",
-                SecurityStamp = Guid.NewGuid().ToString("D")
-            };
+                RoleStore<IdentityRole> roleStore = new RoleStore<IdentityRole>(db);
+                if (!db.Roles.Any(r => r.Name == Admin))
+                {
+                    await roleStore.CreateAsync(new IdentityRole { Name = Admin, NormalizedName = Admin });
+                    await db.SaveChangesAsync();
+                }
+                if (!db.Roles.Any(r => r.Name == Member))
+                {
+                    await roleStore.CreateAsync(new IdentityRole { Name = Member, NormalizedName = Member });
+                    await db.SaveChangesAsync();
+                }
 
-            var roleStore = new RoleStore<IdentityRole>(db);
+                UserStore<ApplicationUser> userStore = new UserStore<ApplicationUser>(db);
+                PasswordHasher<ApplicationUser> hasher = new PasswordHasher<ApplicationUser>();
+                string[] usernames = { "a", "m" };
+                string[] emails = { "a@a.a", "m@m.m" };
+                string[] firstnames = { "Pride", "Accomplishment" };
+                string[] lastnames = { "AAAA", "MMMM" };
 
-            if (!db.Roles.Any(r => r.Name == "admin"))
-            {
-                await roleStore.CreateAsync(new IdentityRole { Name = "admin", NormalizedName = "admin" });
+                ApplicationUser adminUser = new ApplicationUser()
+                {
+                    FirstName = firstnames[0],
+                    LastName = lastnames[0],
+                    Email = emails[0],
+                    NormalizedEmail = emails[0].ToUpper(),
+                    UserName = usernames[0],
+                    NormalizedUserName = usernames[0].ToUpper(),
+                    SecurityStamp = Guid.NewGuid().ToString("D")
+                };
+                adminUser.PasswordHash = hasher.HashPassword(adminUser, Password);
+                await userStore.CreateAsync(adminUser);
+                await userStore.AddToRoleAsync(adminUser, Admin);
+
+                ApplicationUser memberUser = new ApplicationUser()
+                {
+                    FirstName = firstnames[1],
+                    LastName = lastnames[1],
+                    Email = emails[1],
+                    NormalizedEmail = emails[1].ToUpper(),
+                    UserName = usernames[1],
+                    NormalizedUserName = usernames[1].ToUpper(),
+                    SecurityStamp = Guid.NewGuid().ToString("D")
+                };
+                memberUser.PasswordHash = hasher.HashPassword(memberUser, Password);
+                await userStore.CreateAsync(memberUser);
+                await userStore.AddToRoleAsync(memberUser, Member);
             }
-
-            if (!db.Users.Any(u => u.UserName == user.UserName))
-            {
-                var password = new PasswordHasher<ApplicationUser>();
-                var hashed = password.HashPassword(user, "P@$$w0rd");
-                user.PasswordHash = hashed;
-                var userStore = new UserStore<ApplicationUser>(db);
-                await userStore.CreateAsync(user);
-                await userStore.AddToRoleAsync(user, "admin");
-            }
-
-            await db.SaveChangesAsync();
-            //if (!db.Users.Any())
-            //{
-            //    RoleStore<IdentityRole> roleStore = new RoleStore<IdentityRole>(db);
-            //    if (!db.Roles.Any(r => r.Name == ADMIN))
-            //    {
-            //        await roleStore.CreateAsync(new IdentityRole(ADMIN));
-            //        await db.SaveChangesAsync();
-            //    }
-            //    if (!db.Roles.Any(r => r.Name == MEMBER))
-            //    {
-            //        await roleStore.CreateAsync(new IdentityRole(MEMBER));
-            //        await db.SaveChangesAsync();
-            //    }
-
-            //    UserStore<ApplicationUser> userStore = new UserStore<ApplicationUser>(db);
-            //    PasswordHasher<ApplicationUser> hasher = new PasswordHasher<ApplicationUser>();
-            //    string[] usernames = { "a", "m" };
-            //    string[] emails = { "a@a.a", "m@m.m" };
-            //    string[] firstnames = { "andy", "bargo" };
-            //    string[] lastnames = { "bongo", "le fargo" };
-
-            //    ApplicationUser adminUser = new ApplicationUser()
-            //    {
-            //        FirstName = firstnames[0],
-            //        LastName = lastnames[0],
-            //        Email = emails[0],
-            //        NormalizedEmail = emails[0].ToUpper(),
-            //        UserName = usernames[0],
-            //        NormalizedUserName = usernames[0].ToUpper(),
-            //        SecurityStamp = Guid.NewGuid().ToString("D")
-            //    };
-            //    adminUser.PasswordHash = hasher.HashPassword(adminUser, PASSWORD);
-            //    await userStore.CreateAsync(adminUser);
-            //    await userStore.AddToRoleAsync(adminUser, ADMIN);
-
-            //    ApplicationUser memberUser = new ApplicationUser()
-            //    {
-            //        FirstName = firstnames[1],
-            //        LastName = lastnames[1],
-            //        Email = emails[1],
-            //        NormalizedEmail = emails[1].ToUpper(),
-            //        UserName = usernames[1],
-            //        NormalizedUserName = usernames[1].ToUpper(),
-            //        SecurityStamp = Guid.NewGuid().ToString("D")
-            //    };
-            //    memberUser.PasswordHash = hasher.HashPassword(memberUser, PASSWORD);
-            //    await userStore.CreateAsync(memberUser);
-            //    await userStore.AddToRoleAsync(memberUser, MEMBER);
-            //}
             if (!db.ActivityCategories.Any())
             {
                 db.ActivityCategories.AddRange(GetActivityCategories());
@@ -187,8 +162,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Senior's Golf Tournament").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 17, 8, 30, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 17, 10, 30, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 17, 8, 30, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 17, 10, 30, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -196,8 +171,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Leadership General Assembly Meeting").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 18, 8, 30, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 18, 10, 30, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 18, 8, 30, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 18, 10, 30, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -205,8 +180,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Youth Bowling Tournament").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 20, 17, 30, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 20, 18, 15, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 20, 17, 30, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 20, 18, 15, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -214,8 +189,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Young ladies cooking lessons").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 20, 19, 0, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 20, 20, 0, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 20, 19, 0, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 20, 20, 0, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -223,8 +198,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Youth craft lessons").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 21, 8, 30, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 21, 10, 30, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 21, 8, 30, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 21, 10, 30, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -232,8 +207,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Youth choir practice").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 21, 10, 30, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 21, 12, 0, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 21, 10, 30, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 21, 12, 0, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -241,8 +216,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Lunch").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 21, 12, 0, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 21, 13, 30, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 21, 12, 0, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 21, 13, 30, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -250,8 +225,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Pancake Breakfast").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 22, 7, 30, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 22, 8, 30, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 22, 7, 30, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 22, 8, 30, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -259,8 +234,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Swimming Lessons for the youth").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 22, 8, 30, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 22, 10, 30, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 22, 8, 30, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 22, 10, 30, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -268,8 +243,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Swimming Exercise for parents").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 22, 8, 30, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 22, 10, 30, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 22, 8, 30, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 22, 10, 30, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -277,8 +252,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Bingo Tournament").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 22, 10, 30, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 22, 12, 0, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 22, 10, 30, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 22, 12, 0, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -286,8 +261,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "BBQ Lunch").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 22, 12, 0, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 22, 13, 0, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 22, 12, 0, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 22, 13, 0, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },
@@ -295,8 +270,8 @@ namespace ZenithWebSite.Data
                 {
                     ActivityCategoryId = context.ActivityCategories.FirstOrDefault(a => a.ActivityDescription == "Garage Sale").ActivityCategoryId,
                     CreationDate = DateTime.Now,
-                    StartTime = new DateTime(2017, 10, 22, 13, 0, 0).AddDays(offset),
-                    EndTime = new DateTime(2017, 10, 22, 18, 0, 0).AddDays(offset),
+                    StartTime = new DateTime(2017, 11, 22, 13, 0, 0).AddDays(offset),
+                    EndTime = new DateTime(2017, 11, 22, 18, 0, 0).AddDays(offset),
                     CreatorName = "SeedData",
                     IsActive = true,
                 },

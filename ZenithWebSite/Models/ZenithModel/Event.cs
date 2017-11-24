@@ -15,7 +15,7 @@ namespace ZenithWebSite.Models.ZenithModel
         [Display(Name = "Starting Date and Time")]
         public DateTime StartTime { get; set; }
 
-        [DateGreater("StartTime")]
+        [DateGreater("StartTime", ErrorMessage = "Ending time cannot be before Starting time")]
         [Display(Name = "Ending Date and Time")]
         public DateTime EndTime { get; set; }
 
