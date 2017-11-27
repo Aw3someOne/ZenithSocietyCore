@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using ZenithWebSite.Data;
 using ZenithWebSite.Models;
 using ZenithWebSite.Services;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace ZenithWebSite
 {
@@ -36,7 +38,14 @@ namespace ZenithWebSite
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
 
-            services.AddMvc();
+            CorsPolicy globalPolicy = new CorsPolicy();
+            globalPolicy.Headers.Add("*");
+            globalPolicy.Methods.Add("*");
+            globalPolicy.Origins.Add("*");
+            globalPolicy.SupportsCredentials = true;
+            services.AddCors(c => c.AddPolicy("globalPolicy", globalPolicy));
+
+            services.AddMvc().AddJsonOptions(options => { options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore; });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +64,8 @@ namespace ZenithWebSite
 
             app.UseStaticFiles();
 
+            app.UseCors("globalPolicy");
+
             app.UseAuthentication();
 
             app.UseMvc(routes =>
@@ -64,8 +75,8 @@ namespace ZenithWebSite
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
+            //context.Database.EnsureDeleted();
+            //context.Database.EnsureCreated();
             DummyData.Initialize(context);
         }
     }

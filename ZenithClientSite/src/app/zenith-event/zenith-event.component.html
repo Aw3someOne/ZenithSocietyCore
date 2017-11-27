@@ -1,0 +1,16 @@
+<div>
+  <h1>Showing Events for the week of {{ weekOf | date }}</h1>
+  <table>
+    <div *ngFor="let day of groupedEvents; let i=index">
+      <div *ngIf="day.length > 0">
+        <tr><th>{{ day[0].eventDate | date }}</th></tr>
+        <tr *ngFor="let event of day">
+          <td>{{ event.startTime }} - {{ event.endTime }}</td>
+          <td>{{ event.activityDescription }} </td>
+        </tr>
+      </div>
+    </div>
+  </table>
+  <button on-click="previous()">Previous</button>
+  <button on-click="next()">Next</button>
+</div>
