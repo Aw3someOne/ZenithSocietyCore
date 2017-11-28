@@ -197,7 +197,7 @@ module.exports = module.exports.toString();
 /***/ "../../../../../src/app/zenith-event/zenith-event.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div>\n  <h1>Showing Events for the week of {{ weekOf | date }}</h1>\n  <table>\n    <div *ngFor=\"let day of groupedEvents; let i=index\">\n      <div *ngIf=\"day.length > 0\">\n        <tr><th>{{ day[0].eventDate | date }}</th></tr>\n        <tr *ngFor=\"let event of day\">\n          <td>{{ event.startTime }} - {{ event.endTime }}</td>\n          <td>{{ event.activityDescription }} </td>\n        </tr>\n      </div>\n    </div>\n  </table>\n  <button on-click=\"previous()\">Previous</button>\n  <button on-click=\"next()\">Next</button>\n</div>\n"
+module.exports = "<div>\n  <h1>Showing Events for the week of {{ weekOf | date:'MMM dd, yyyy':'UTC' }}</h1>\n  <table>\n    <div *ngFor=\"let day of groupedEvents; let i=index\">\n      <div *ngIf=\"day.length > 0\">\n        <tr><th>{{ day[0].eventDate | date:'MMM dd, yyyy':'UTC' }}</th></tr>\n        <tr *ngFor=\"let event of day\">\n          <td>{{ event.startTime }} - {{ event.endTime }}</td>\n          <td>{{ event.activityDescription }} </td>\n        </tr>\n      </div>\n    </div>\n  </table>\n  <button on-click=\"previous()\">Previous</button>\n  <button on-click=\"next()\">Next</button>\n</div>\n"
 
 /***/ }),
 

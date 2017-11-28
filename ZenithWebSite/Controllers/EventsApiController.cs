@@ -53,7 +53,7 @@ namespace ZenithWebSite.Controllers
         {
             var today = DateTime.Today;
             var monday = GetStartOfWeek(today).AddDays(7 * week);
-            return Json(monday.ToLocalTime());
+            return Json(monday);
         }
 
         // GET: api/Events/Week/0
