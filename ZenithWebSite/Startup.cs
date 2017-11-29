@@ -13,6 +13,10 @@ using ZenithWebSite.Models;
 using ZenithWebSite.Services;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Razor;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
 
 namespace ZenithWebSite
 {
@@ -45,7 +49,32 @@ namespace ZenithWebSite
             globalPolicy.SupportsCredentials = true;
             services.AddCors(c => c.AddPolicy("globalPolicy", globalPolicy));
 
-            services.AddMvc().AddJsonOptions(options => { options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore; });
+            services.AddLocalization(opts => { opts.ResourcesPath = "Resources"; });
+
+            services
+                .AddMvc()
+                .AddViewLocalization(
+                    LanguageViewLocationExpanderFormat.Suffix,
+                    opts => { opts.ResourcesPath = "Resources"; })
+                .AddDataAnnotationsLocalization()
+                .AddJsonOptions(options => { options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore; });
+
+            services.Configure<RequestLocalizationOptions>(opts => {
+                var supportedCultures = new List<CultureInfo> {
+                    //new CultureInfo("en"),
+                    new CultureInfo("en-US"),
+                    //new CultureInfo("fr"),
+                    new CultureInfo("fr-FR"),
+                    //new CultureInfo("zh-CN"),   // Chinese China
+                    //new CultureInfo("ar-EG"),   // Arabic Egypt
+                };
+
+                opts.DefaultRequestCulture = new RequestCulture("en-US");
+                // Formatting numbers, dates, etc.
+                opts.SupportedCultures = supportedCultures;
+                // UI strings that we have localized.
+                opts.SupportedUICultures = supportedCultures;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,6 +92,9 @@ namespace ZenithWebSite
             }
 
             app.UseStaticFiles();
+
+            var options = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            app.UseRequestLocalization(options.Value);
 
             app.UseCors("globalPolicy");
 

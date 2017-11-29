@@ -11,7 +11,7 @@ namespace ZenithWebSite.Models.ZenithModel
     {
         public int ActivityCategoryId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "The Description field is required")]
         [Display(Name = "Description")]
         public string ActivityDescription { get; set; }
 
