@@ -1,15 +1,17 @@
 <div>
   <h1>Showing Events for the week of {{ weekOf | date:'MMM dd, yyyy':'UTC' }}</h1>
   <table>
-    <div *ngFor="let day of groupedEvents; let i=index">
-      <div *ngIf="day.length > 0">
-        <tr><th>{{ day[0].eventDate | date:'MMM dd, yyyy':'UTC' }}</th></tr>
+    <ng-container *ngFor="let day of groupedEvents; let i=index">
+      <ng-container *ngIf="day.length > 0">
+        <tr><th colspan="2">
+          {{ day[0].eventDate | date:'MMM dd, yyyy':'UTC' }}
+        </th></tr>
         <tr *ngFor="let event of day">
           <td>{{ event.startTime }} - {{ event.endTime }}</td>
           <td>{{ event.activityDescription }} </td>
         </tr>
-      </div>
-    </div>
+      </ng-container>
+    </ng-container>
   </table>
   <button on-click="previous()">Previous</button>
   <button on-click="next()">Next</button>
