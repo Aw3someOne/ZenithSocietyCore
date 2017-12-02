@@ -73,7 +73,7 @@ namespace ZenithWebSite.Controllers
 
             var events = _context.Events
                 .Include(m => m.ActivityCategory)
-                .Where(m => m.StartTime >= monday && m.EndTime < end)
+                .Where(m => m.StartTime >= monday && m.EndTime < end && m.IsActive)
                 .OrderBy(m => m.StartTime)
                 .Select(m => new EventDTO(m));
 
