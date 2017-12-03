@@ -108,7 +108,7 @@ namespace ZenithWebSite
             });
 
             //context.Database.EnsureDeleted();
-            //context.Database.EnsureCreated();
+            context.Database.EnsureCreated();
             DummyData.Initialize(context);
         }
     }
